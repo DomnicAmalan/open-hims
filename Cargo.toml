@@ -1,0 +1,75 @@
+[package]
+name = "hims-core-sdk"
+version = "0.1.0"
+edition = "2021"
+authors = ["HIMS Team <team@hims.org>"]
+description = "Healthcare Information Management System Core SDK"
+license = "MIT"
+repository = "https://github.com/hims/hims-core-sdk"
+keywords = ["healthcare", "fhir", "hl7", "dicom", "medical"]
+categories = ["api-bindings", "web-programming"]
+
+[lib]
+name = "hims_core_sdk"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+# Core utilities
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+anyhow = "1.0"
+thiserror = "1.0"
+log = "0.4"
+env_logger = "0.10"
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# HTTP client
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+
+# Cryptography and security
+ring = "0.17"
+sha2 = "0.10"
+base64 = "0.21"
+jsonwebtoken = "9.0"
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "chrono", "uuid"] }
+
+# FHIR support
+fhir-model = "0.6"
+
+# XML/HL7 parsing
+quick-xml = "0.30"
+roxmltree = "0.18"
+
+# DICOM support
+dicom = "0.6"
+dicom-core = "0.6"
+dicom-dictionary-std = "0.6"
+dicom-object = "0.6"
+
+# React Native bindings
+uniffi = "0.25"
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.11"
+
+[build-dependencies]
+uniffi = { version = "0.25", features = ["build"] }
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
+
+[features]
+default = ["fhir", "hl7v2", "dicom", "abdm"]
+fhir = []
+hl7v2 = []
+dicom = []
+abdm = []
+security = []
