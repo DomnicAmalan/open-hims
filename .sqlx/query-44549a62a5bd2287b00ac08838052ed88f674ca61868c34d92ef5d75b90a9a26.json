@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT COUNT(*) as failed_attempts\n            FROM audit_logs \n            WHERE timestamp >= $1 AND timestamp <= $2\n                AND outcome = 'Failure'\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "failed_attempts",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "44549a62a5bd2287b00ac08838052ed88f674ca61868c34d92ef5d75b90a9a26"
+}

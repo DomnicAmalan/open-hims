@@ -1,0 +1,263 @@
+use anyhow::Result;
+use chrono::Utc;
+use sqlx::{PgPool, query, query_as};
+use serde_json;
+use uuid::Uuid;
+
+use crate::models::{MedicalRecord, AuditLog, AuditEventType, AuditResourceType};
+use crate::core::HimsError;
+
+/// Service for managing medical records with FHIR compliance and audit logging
+pub struct MedicalRecordService {
+    pool: PgPool,
+}
+
+impl MedicalRecordService {
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
+
+    /// Create a new medical record with audit logging
+    pub async fn create_medical_record(
+        &self,
+        medical_record: &MedicalRecord,
+        user_id: &str,
+    ) -> Result<String, HimsError> {
+        let mut transaction = self.pool.begin().await?;
+
+        // Insert medical record - using the simplified schema
+        let record_id = medical_record.id.to_string();
+        
+        let _ = sqlx::query!(
+            r#"
+            INSERT INTO medical_records (
+                id, patient_id, encounter_id, record_type, status, subject,
+                author, content, created_at, updated_at, meta
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+            )
+            "#,
+            record_id,
+            medical_record.patient_id,
+            medical_record.encounter_id,
+            serde_json::to_string(&medical_record.record_type)?,
+            serde_json::to_string(&medical_record.status)?,
+            serde_json::to_value(&medical_record.subject)?,
+            serde_json::to_value(&medical_record.author)?,
+            medical_record.content,
+            medical_record.created_at,
+            medical_record.updated_at,
+            serde_json::to_value(&medical_record.meta)?
+        )
+        .execute(&mut *transaction)
+        .await?;
+
+        // Create audit log
+        self.log_medical_record_audit(
+            &mut transaction,
+            &record_id,
+            user_id,
+            AuditEventType::Create,
+            Some("Medical record created".to_string()),
+        ).await?;
+
+        transaction.commit().await?;
+        Ok(record_id)
+    }
+
+    /// Retrieve medical record by ID
+    pub async fn get_medical_record(&self, id: &str) -> Result<Option<MedicalRecord>, HimsError> {
+        let row = sqlx::query!(
+            r#"
+            SELECT id, patient_id, encounter_id, record_type, status, subject,
+                   author, content, created_at, updated_at, meta
+            FROM medical_records WHERE id = $1 AND deleted_at IS NULL
+            "#,
+            id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        if let Some(row) = row {
+            Ok(Some(MedicalRecord {
+                id: row.id,
+                patient_id: row.patient_id,
+                encounter_id: row.encounter_id,
+                record_type: serde_json::from_str(&row.record_type).unwrap_or_default(),
+                status: serde_json::from_str(&row.status).unwrap_or_default(),
+                subject: serde_json::from_value(row.subject).unwrap_or_default(),
+                author: serde_json::from_value(row.author).unwrap_or_default(),
+                content: row.content,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                meta: serde_json::from_value(row.meta).unwrap_or_default(),
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Search medical records with pagination and filtering
+    pub async fn search_medical_records(
+        &self,
+        patient_id: Option<&str>,
+        category: Option<&str>,
+        status: Option<&str>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> Result<Vec<MedicalRecord>, HimsError> {
+        let client = self.pool.get().await?;
+        let limit = limit.unwrap_or(50);
+        let offset = offset.unwrap_or(0);
+
+        let rows = sqlx::query!(
+            r#"
+            SELECT id, status, category, code, subject, encounter, effective_date_time,
+                   issued, performer, value_quantity, value_codeable_concept, value_string,
+                   value_boolean, value_integer, value_range, value_ratio, value_sampled_data,
+                   value_time, value_date_time, value_period, data_absent_reason,
+                   interpretation, note, body_site, method, specimen, device,
+                   reference_range, has_member, derived_from, component, created_at, updated_at
+            FROM medical_records 
+            WHERE deleted_at IS NULL
+                AND ($1::text IS NULL OR subject = $1)
+                AND ($2::text IS NULL OR category::text ILIKE '%' || $2 || '%')
+                AND ($3::text IS NULL OR status = $3)
+            ORDER BY effective_date_time DESC
+            LIMIT $4 OFFSET $5
+            "#,
+            patient_id,
+            category,
+            status,
+            limit,
+            offset
+        )
+        .fetch_all(&client)
+        .await?;
+
+        let medical_records = rows.into_iter().map(|row| {
+            MedicalRecord {
+                id: Some(row.id),
+                status: row.status,
+                category: row.category.map(|v| serde_json::from_value(v).ok()).flatten(),
+                code: row.code.map(|v| serde_json::from_value(v).ok()).flatten(),
+                subject: row.subject,
+                encounter: row.encounter,
+                effective_date_time: row.effective_date_time,
+                issued: row.issued,
+                performer: row.performer.map(|v| serde_json::from_value(v).ok()).flatten(),
+                value_quantity: row.value_quantity.map(|v| serde_json::from_value(v).ok()).flatten(),
+                value_codeable_concept: row.value_codeable_concept.map(|v| serde_json::from_value(v).ok()).flatten(),
+                value_string: row.value_string,
+                value_boolean: row.value_boolean,
+                value_integer: row.value_integer,
+                value_range: row.value_range.map(|v| serde_json::from_value(v).ok()).flatten(),
+                value_ratio: row.value_ratio.map(|v| serde_json::from_value(v).ok()).flatten(),
+                value_sampled_data: row.value_sampled_data.map(|v| serde_json::from_value(v).ok()).flatten(),
+                value_time: row.value_time,
+                value_date_time: row.value_date_time,
+                value_period: row.value_period.map(|v| serde_json::from_value(v).ok()).flatten(),
+                data_absent_reason: row.data_absent_reason.map(|v| serde_json::from_value(v).ok()).flatten(),
+                interpretation: row.interpretation.map(|v| serde_json::from_value(v).ok()).flatten(),
+                note: row.note.map(|v| serde_json::from_value(v).ok()).flatten(),
+                body_site: row.body_site.map(|v| serde_json::from_value(v).ok()).flatten(),
+                method: row.method.map(|v| serde_json::from_value(v).ok()).flatten(),
+                specimen: row.specimen,
+                device: row.device,
+                reference_range: row.reference_range.map(|v| serde_json::from_value(v).ok()).flatten(),
+                has_member: row.has_member.map(|v| serde_json::from_value(v).ok()).flatten(),
+                derived_from: row.derived_from.map(|v| serde_json::from_value(v).ok()).flatten(),
+                component: row.component.map(|v| serde_json::from_value(v).ok()).flatten(),
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+            }
+        }).collect();
+
+        Ok(medical_records)
+    }
+
+    /// Soft delete medical record with audit logging
+    pub async fn delete_medical_record(&self, id: &str, user_id: &str) -> Result<bool, HimsError> {
+        let mut transaction = self.pool.begin().await?;
+
+        let deleted_at = Utc::now();
+        let rows_affected = sqlx::query!(
+            "UPDATE medical_records SET deleted_at = $1 WHERE id = $2 AND deleted_at IS NULL",
+            deleted_at,
+            id
+        )
+        .execute(&mut *transaction)
+        .await?
+        .rows_affected();
+
+        if rows_affected > 0 {
+            self.log_medical_record_audit(
+                &mut transaction,
+                id,
+                user_id,
+                AuditEventType::Delete,
+                Some("Medical record soft deleted".to_string()),
+            ).await?;
+
+            transaction.commit().await?;
+            Ok(true)
+        } else {
+            transaction.rollback().await?;
+            Ok(false)
+        }
+    }
+
+    /// Private helper for audit logging
+    async fn log_medical_record_audit(
+        &self,
+        transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        record_id: &str,
+        user_id: &str,
+        event_type: AuditEventType,
+        details: Option<String>,
+    ) -> Result<(), HimsError> {
+        let audit_log = AuditLog {
+            id: Uuid::new_v4().to_string(),
+            event_type,
+            user_id: user_id.to_string(),
+            patient_id: None,
+            appointment_id: None,
+            resource_type: AuditResourceType::MedicalRecord,
+            resource_id: record_id.to_string(),
+            action: "CRUD".to_string(),
+            outcome: "Success".to_string(),
+            timestamp: Utc::now(),
+            source_ip: None,
+            user_agent: None,
+            details,
+        };
+
+        sqlx::query!(
+            r#"
+            INSERT INTO audit_logs (
+                id, event_type, user_id, patient_id, appointment_id, resource_type, 
+                resource_id, action, outcome, timestamp, source_ip, user_agent, details
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+            )
+            "#,
+            audit_log.id,
+            audit_log.event_type.to_string(),
+            audit_log.user_id,
+            audit_log.patient_id,
+            audit_log.appointment_id,
+            audit_log.resource_type.to_string(),
+            audit_log.resource_id,
+            audit_log.action,
+            audit_log.outcome,
+            audit_log.timestamp,
+            audit_log.source_ip,
+            audit_log.user_agent,
+            audit_log.details
+        )
+        .execute(transaction)
+        .await?;
+
+        Ok(())
+    }
+}

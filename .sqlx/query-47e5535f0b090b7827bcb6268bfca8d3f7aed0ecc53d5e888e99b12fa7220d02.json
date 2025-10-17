@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT \n                event_type,\n                resource_type,\n                COUNT(*) as count,\n                MAX(timestamp) as last_activity\n            FROM audit_logs \n            WHERE user_id = $1 \n                AND timestamp >= $2 \n                AND timestamp <= $3\n            GROUP BY event_type, resource_type\n            ORDER BY count DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "event_type",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "resource_type",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "last_activity",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "47e5535f0b090b7827bcb6268bfca8d3f7aed0ecc53d5e888e99b12fa7220d02"
+}

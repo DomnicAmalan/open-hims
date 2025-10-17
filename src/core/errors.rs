@@ -4,6 +4,9 @@ pub enum HimsError {
     #[error("Authentication failed: {message}")]
     AuthenticationError { message: String },
     
+    #[error("Database error: {0}")]
+    DatabaseError(String),
+    
     #[error("Network error: {message}")]
     NetworkError { message: String },
     

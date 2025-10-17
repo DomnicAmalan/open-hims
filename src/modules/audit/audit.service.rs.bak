@@ -1,0 +1,301 @@
+use anyhow::Result;
+use chrono::Utc;
+use deadpool_postgres::Pool;
+use serde_json;
+use uuid::Uuid;
+
+use crate::models::{AuditLog, AuditEventType, AuditResourceType};
+use crate::core::HimsError;
+
+/// Service for managing audit logs and compliance reporting
+pub struct AuditService {
+    pool: Pool,
+}
+
+impl AuditService {
+    pub fn new(pool: Pool) -> Self {
+        Self { pool }
+    }
+
+    /// Create a new audit log entry
+    pub async fn create_audit_log(
+        &self,
+        audit_log: &AuditLog,
+    ) -> Result<String, HimsError> {
+        let client = self.pool.get().await?;
+        
+        let audit_id = audit_log.id.clone();
+        
+        let _ = sqlx::query!(
+            r#"
+            INSERT INTO audit_logs (
+                id, event_type, user_id, patient_id, appointment_id, resource_type, 
+                resource_id, action, outcome, timestamp, source_ip, user_agent, details
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+            )
+            "#,
+            audit_log.id,
+            audit_log.event_type.to_string(),
+            audit_log.user_id,
+            audit_log.patient_id,
+            audit_log.appointment_id,
+            audit_log.resource_type.to_string(),
+            audit_log.resource_id,
+            audit_log.action,
+            audit_log.outcome,
+            audit_log.timestamp,
+            audit_log.source_ip,
+            audit_log.user_agent,
+            audit_log.details
+        )
+        .execute(&client)
+        .await?;
+
+        Ok(audit_id)
+    }
+
+    /// Retrieve audit logs with filtering and pagination
+    pub async fn get_audit_logs(
+        &self,
+        user_id: Option<&str>,
+        patient_id: Option<&str>,
+        resource_type: Option<&str>,
+        event_type: Option<&str>,
+        start_date: Option<chrono::DateTime<Utc>>,
+        end_date: Option<chrono::DateTime<Utc>>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> Result<Vec<AuditLog>, HimsError> {
+        let client = self.pool.get().await?;
+        let limit = limit.unwrap_or(100);
+        let offset = offset.unwrap_or(0);
+
+        let rows = sqlx::query!(
+            r#"
+            SELECT id, event_type, user_id, patient_id, appointment_id, resource_type, 
+                   resource_id, action, outcome, timestamp, source_ip, user_agent, details
+            FROM audit_logs 
+            WHERE ($1::text IS NULL OR user_id = $1)
+                AND ($2::text IS NULL OR patient_id = $2)
+                AND ($3::text IS NULL OR resource_type = $3)
+                AND ($4::text IS NULL OR event_type = $4)
+                AND ($5::timestamptz IS NULL OR timestamp >= $5)
+                AND ($6::timestamptz IS NULL OR timestamp <= $6)
+            ORDER BY timestamp DESC
+            LIMIT $7 OFFSET $8
+            "#,
+            user_id,
+            patient_id,
+            resource_type,
+            event_type,
+            start_date,
+            end_date,
+            limit,
+            offset
+        )
+        .fetch_all(&client)
+        .await?;
+
+        let audit_logs = rows.into_iter().map(|row| {
+            AuditLog {
+                id: row.id,
+                event_type: AuditEventType::from_string(&row.event_type),
+                user_id: row.user_id,
+                patient_id: row.patient_id,
+                appointment_id: row.appointment_id,
+                resource_type: AuditResourceType::from_string(&row.resource_type),
+                resource_id: row.resource_id,
+                action: row.action,
+                outcome: row.outcome,
+                timestamp: row.timestamp,
+                source_ip: row.source_ip,
+                user_agent: row.user_agent,
+                details: row.details,
+            }
+        }).collect();
+
+        Ok(audit_logs)
+    }
+
+    /// Get audit log by ID
+    pub async fn get_audit_log(&self, id: &str) -> Result<Option<AuditLog>, HimsError> {
+        let client = self.pool.get().await?;
+        
+        let row = sqlx::query!(
+            r#"
+            SELECT id, event_type, user_id, patient_id, appointment_id, resource_type, 
+                   resource_id, action, outcome, timestamp, source_ip, user_agent, details
+            FROM audit_logs WHERE id = $1
+            "#,
+            id
+        )
+        .fetch_optional(&client)
+        .await?;
+
+        if let Some(row) = row {
+            Ok(Some(AuditLog {
+                id: row.id,
+                event_type: AuditEventType::from_string(&row.event_type),
+                user_id: row.user_id,
+                patient_id: row.patient_id,
+                appointment_id: row.appointment_id,
+                resource_type: AuditResourceType::from_string(&row.resource_type),
+                resource_id: row.resource_id,
+                action: row.action,
+                outcome: row.outcome,
+                timestamp: row.timestamp,
+                source_ip: row.source_ip,
+                user_agent: row.user_agent,
+                details: row.details,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Generate HIPAA compliance report
+    pub async fn generate_hipaa_report(
+        &self,
+        start_date: chrono::DateTime<Utc>,
+        end_date: chrono::DateTime<Utc>,
+    ) -> Result<HipaaComplianceReport, HimsError> {
+        let client = self.pool.get().await?;
+
+        // Get access statistics
+        let access_stats = sqlx::query!(
+            r#"
+            SELECT 
+                COUNT(*) as total_access_events,
+                COUNT(DISTINCT user_id) as unique_users,
+                COUNT(DISTINCT patient_id) as patients_accessed
+            FROM audit_logs 
+            WHERE timestamp >= $1 AND timestamp <= $2
+                AND event_type IN ('Read', 'Access')
+            "#,
+            start_date,
+            end_date
+        )
+        .fetch_one(&client)
+        .await?;
+
+        // Get failed access attempts
+        let failed_access = sqlx::query!(
+            r#"
+            SELECT COUNT(*) as failed_attempts
+            FROM audit_logs 
+            WHERE timestamp >= $1 AND timestamp <= $2
+                AND outcome = 'Failure'
+            "#,
+            start_date,
+            end_date
+        )
+        .fetch_one(&client)
+        .await?;
+
+        // Get data modifications
+        let modifications = sqlx::query!(
+            r#"
+            SELECT COUNT(*) as total_modifications
+            FROM audit_logs 
+            WHERE timestamp >= $1 AND timestamp <= $2
+                AND event_type IN ('Create', 'Update', 'Delete')
+            "#,
+            start_date,
+            end_date
+        )
+        .fetch_one(&client)
+        .await?;
+
+        Ok(HipaaComplianceReport {
+            period_start: start_date,
+            period_end: end_date,
+            total_access_events: access_stats.total_access_events.unwrap_or(0) as u64,
+            unique_users: access_stats.unique_users.unwrap_or(0) as u64,
+            patients_accessed: access_stats.patients_accessed.unwrap_or(0) as u64,
+            failed_access_attempts: failed_access.failed_attempts.unwrap_or(0) as u64,
+            data_modifications: modifications.total_modifications.unwrap_or(0) as u64,
+            generated_at: Utc::now(),
+        })
+    }
+
+    /// Generate user activity report
+    pub async fn generate_user_activity_report(
+        &self,
+        user_id: &str,
+        start_date: chrono::DateTime<Utc>,
+        end_date: chrono::DateTime<Utc>,
+    ) -> Result<UserActivityReport, HimsError> {
+        let client = self.pool.get().await?;
+
+        let activities = sqlx::query!(
+            r#"
+            SELECT 
+                event_type,
+                resource_type,
+                COUNT(*) as count,
+                MAX(timestamp) as last_activity
+            FROM audit_logs 
+            WHERE user_id = $1 
+                AND timestamp >= $2 
+                AND timestamp <= $3
+            GROUP BY event_type, resource_type
+            ORDER BY count DESC
+            "#,
+            user_id,
+            start_date,
+            end_date
+        )
+        .fetch_all(&client)
+        .await?;
+
+        let activity_summary = activities.into_iter().map(|row| {
+            ActivitySummary {
+                event_type: row.event_type,
+                resource_type: row.resource_type,
+                count: row.count.unwrap_or(0) as u64,
+                last_activity: row.last_activity.unwrap_or(Utc::now()),
+            }
+        }).collect();
+
+        Ok(UserActivityReport {
+            user_id: user_id.to_string(),
+            period_start: start_date,
+            period_end: end_date,
+            activities: activity_summary,
+            generated_at: Utc::now(),
+        })
+    }
+}
+
+/// HIPAA compliance report structure
+#[derive(Debug, serde::Serialize)]
+pub struct HipaaComplianceReport {
+    pub period_start: chrono::DateTime<Utc>,
+    pub period_end: chrono::DateTime<Utc>,
+    pub total_access_events: u64,
+    pub unique_users: u64,
+    pub patients_accessed: u64,
+    pub failed_access_attempts: u64,
+    pub data_modifications: u64,
+    pub generated_at: chrono::DateTime<Utc>,
+}
+
+/// User activity report structure
+#[derive(Debug, serde::Serialize)]
+pub struct UserActivityReport {
+    pub user_id: String,
+    pub period_start: chrono::DateTime<Utc>,
+    pub period_end: chrono::DateTime<Utc>,
+    pub activities: Vec<ActivitySummary>,
+    pub generated_at: chrono::DateTime<Utc>,
+}
+
+/// Activity summary for user reports
+#[derive(Debug, serde::Serialize)]
+pub struct ActivitySummary {
+    pub event_type: String,
+    pub resource_type: String,
+    pub count: u64,
+    pub last_activity: chrono::DateTime<Utc>,
+}

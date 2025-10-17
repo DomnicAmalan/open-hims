@@ -8,6 +8,11 @@ pub mod security;
 pub mod exporters;
 pub mod countries;
 
+// API modules for web server (NestJS-style)
+pub mod models;
+pub mod modules;
+pub mod database;
+
 // Re-exports for easier access
 pub use crate::core::*;
 pub use crate::standards::*;

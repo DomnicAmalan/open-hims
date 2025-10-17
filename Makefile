@@ -58,7 +58,7 @@ dev: dev-all
 dev-all: check-hosts
 	@echo "🚀 Starting all development services in separate tabs..."
 	@echo "This will open tabs for:"
-	@echo "  - Tab 1: Rust backend (cargo run)"
+	@echo "  - Tab 1: Rust API server (http://localhost:8080)"
 	@echo "  - Tab 2: Web app (Vite dev server)"
 	@echo "  - Tab 3: Desktop app (Tauri)"
 	@echo "  - Tab 4: Mobile app (Expo)"
@@ -66,7 +66,7 @@ dev-all: check-hosts
 	@echo ""
 	@echo "Services will be available at:"
 	@echo "  - Web: https://dev.openhims.health"
-	@echo "  - API: https://api-dev.openhims.health"
+	@echo "  - API: https://api-dev.openhims.health (proxied to :8080)"
 	@echo "  - Desktop: Native app window"
 	@echo "  - Mobile: Expo dev tools"
 	@echo ""
@@ -82,11 +82,9 @@ dev-parallel: check-hosts
 
 # Individual service targets
 start-rust:
-	@echo "🦀 Building Rust SDK..."
-	cargo build
-	@echo "✅ Rust SDK built successfully!"
-	@echo "📚 SDK ready as library for frontend apps"
-	@echo "🔧 To add an API server, consider adding a binary target to Cargo.toml"
+	@echo "🦀 Starting Rust API server..."
+	@echo "Building and running HIMS Core API server on http://localhost:8080"
+	cargo run --bin hims-server
 
 start-web:
 	@echo "⚛️ Starting React web app..."

@@ -14,9 +14,9 @@ name = "hims_core_sdk"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 # TODO: Implement server binary
-# [[bin]]
-# name = "hims-server"
-# path = "src/bin/server.rs"
+[[bin]]
+name = "hims-server"
+path = "src/bin/server.rs"
 
 [dependencies]
 # Core utilities
@@ -35,14 +35,22 @@ tokio = { version = "1.0", features = ["full"] }
 # HTTP client
 reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
 
+# HTTP server - Axum for healthcare systems
+axum = { version = "0.7", features = ["json"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
 # Cryptography and security
 ring = "0.17"
 sha2 = "0.10"
 base64 = "0.21"
 jsonwebtoken = "9.0"
 
-# Database
-sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "chrono", "uuid"] }
+# Database - PostgreSQL with SQLx for healthcare systems
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "json", "migrate"] }
+deadpool-postgres = "0.12"
 
 # FHIR support
 fhir-model = "0.6"

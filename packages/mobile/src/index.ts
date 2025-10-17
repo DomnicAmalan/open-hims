@@ -1,6 +1,9 @@
 // React Native Paper UI Components
 export * from './providers/theme-provider';
 
+// Glass Effect & Native Tab Components
+export * from './components';
+
 // Rust Core SDK Bindings for React Native
 export * from './bindings';
 
