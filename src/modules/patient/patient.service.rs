@@ -194,28 +194,20 @@ impl PatientService {
 
         // Update patient
         let updated_at = Utc::now();
-        sqlx::query!(
-            r#"
-            UPDATE patients 
-            SET name = $2, telecom = $3, gender = $4, birth_date = $5,
-                address = $6, marital_status = $7, contact = $8, 
-                communication = $9, meta = jsonb_set(meta, '{lastUpdated}', $10)
-            WHERE id = $1
-            "#,
-            id,
-            serde_json::to_value(&request.name)?,
-            serde_json::to_value(&request.telecom)?,
-            request.gender.to_string(),
-            request.birth_date,
-            serde_json::to_value(&request.address)?,
-            serde_json::to_value(&request.marital_status)?,
-            serde_json::to_value(&request.contact)?,
-            serde_json::to_value(&request.communication)?,
-            serde_json::to_value(updated_at.to_rfc3339())?
-        )
-        .execute(&mut *tx)
-        .await
-        .context("Failed to update patient")?;
+        sqlx::query(UPDATE_PATIENT)
+            .bind(id)
+            .bind(serde_json::to_value(&request.name)?)
+            .bind(serde_json::to_value(&request.telecom)?)
+            .bind(request.gender.to_string())
+            .bind(request.birth_date)
+            .bind(serde_json::to_value(&request.address)?)
+            .bind(serde_json::to_value(&request.marital_status)?)
+            .bind(serde_json::to_value(&request.contact)?)
+            .bind(serde_json::to_value(&request.communication)?)
+            .bind(serde_json::to_value(updated_at.to_rfc3339())?)
+            .execute(&mut *tx)
+            .await
+            .context("Failed to update patient")?;
 
         // Create audit log
         let audit_log = AuditLog::new(
@@ -241,14 +233,12 @@ impl PatientService {
     pub async fn delete_patient(&self, id: Uuid) -> Result<bool> {
         let pool = &self.pool;
         
-        let rows_affected = sqlx::query!(
-            "UPDATE patients SET active = false WHERE id = $1 AND active = true",
-            id
-        )
-        .execute(pool)
-        .await
-        .context("Failed to delete patient")?
-        .rows_affected();
+        let rows_affected = sqlx::query(DELETE_PATIENT)
+            .bind(id)
+            .execute(pool)
+            .await
+            .context("Failed to delete patient")?
+            .rows_affected();
 
         if rows_affected > 0 {
             // Create audit log
@@ -270,27 +260,20 @@ impl PatientService {
 
     /// Create audit log entry within transaction
     async fn create_audit_log(&self, tx: &mut sqlx::Transaction<'_, sqlx::Postgres>, audit_log: &AuditLog) -> Result<()> {
-        sqlx::query!(
-            r#"
-            INSERT INTO audit_logs (
-                id, event_type, user_id, patient_id, resource_type, 
-                resource_id, action, outcome, timestamp, details
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-            "#,
-            audit_log.id,
-            audit_log.event_type.to_string(),
-            audit_log.user_id,
-            audit_log.patient_id,
-            audit_log.resource_type.to_string(),
-            audit_log.resource_id,
-            audit_log.action.to_string(),
-            audit_log.outcome.to_string(),
-            audit_log.timestamp,
-            audit_log.details
-        )
-        .execute(&mut **tx)
-        .await
-        .context("Failed to create audit log")?;
+        sqlx::query(INSERT_AUDIT_LOG)
+            .bind(&audit_log.id)
+            .bind(audit_log.event_type.to_string())
+            .bind(&audit_log.user_id)
+            .bind(audit_log.patient_id.as_ref())
+            .bind(audit_log.resource_type.to_string())
+            .bind(&audit_log.resource_id)
+            .bind(audit_log.action.to_string())
+            .bind(audit_log.outcome.to_string())
+            .bind(audit_log.timestamp)
+            .bind(audit_log.details.as_ref())
+            .execute(&mut **tx)
+            .await
+            .context("Failed to create audit log")?;
 
         Ok(())
     }
@@ -299,27 +282,20 @@ impl PatientService {
     async fn create_audit_log_async(&self, audit_log: &AuditLog) -> Result<()> {
         let pool = &self.pool;
         
-        sqlx::query!(
-            r#"
-            INSERT INTO audit_logs (
-                id, event_type, user_id, patient_id, resource_type, 
-                resource_id, action, outcome, timestamp, details
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-            "#,
-            audit_log.id,
-            audit_log.event_type.to_string(),
-            audit_log.user_id,
-            audit_log.patient_id,
-            audit_log.resource_type,
-            audit_log.resource_id,
-            audit_log.action.to_string(),
-            audit_log.outcome.to_string(),
-            audit_log.timestamp,
-            audit_log.details
-        )
-        .execute(pool)
-        .await
-        .context("Failed to create audit log")?;
+        sqlx::query(INSERT_AUDIT_LOG)
+            .bind(&audit_log.id)
+            .bind(audit_log.event_type.to_string())
+            .bind(&audit_log.user_id)
+            .bind(audit_log.patient_id.as_ref())
+            .bind(audit_log.resource_type.to_string())
+            .bind(&audit_log.resource_id)
+            .bind(audit_log.action.to_string())
+            .bind(audit_log.outcome.to_string())
+            .bind(audit_log.timestamp)
+            .bind(audit_log.details.as_ref())
+            .execute(pool)
+            .await
+            .context("Failed to create audit log")?;
 
         Ok(())
     }
