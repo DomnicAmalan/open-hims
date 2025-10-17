@@ -1,6 +1,9 @@
 # Open HIMS Development Makefile
 # Manages local development environment with Rust backend, web, desktop, and mobile apps
 
+# Get current directory
+PROJECT_DIR := $(shell pwd)
+
 .PHONY: help setup dev dev-all start-rust start-web start-desktop start-mobile start-caddy stop clean check-hosts setup-hosts
 
 # Default target
@@ -12,8 +15,9 @@ help:
 	@echo "  make setup-hosts - Configure /etc/hosts for local development"
 	@echo ""
 	@echo "Development:"
-	@echo "  make dev        - Start ALL development services (recommended)"
+	@echo "  make dev        - Start ALL services in separate tabs (recommended)"
 	@echo "  make dev-all    - Same as 'make dev'"
+	@echo "  make dev-parallel - Start ALL services in same terminal (parallel)"
 	@echo ""
 	@echo "Individual Services:"
 	@echo "  make start-rust    - Start Rust backend server"
@@ -48,17 +52,17 @@ setup-hosts:
 	@echo "🔧 Configuring /etc/hosts for local development..."
 	./scripts/setup-hosts.sh
 
-# Start all development services
+# Start all development services in separate terminals
 dev: dev-all
 
 dev-all: check-hosts
-	@echo "🚀 Starting all development services..."
-	@echo "This will start:"
-	@echo "  - Rust backend (cargo run)"
-	@echo "  - Web app (Vite dev server)"
-	@echo "  - Desktop app (Tauri)"
-	@echo "  - Mobile app (Expo)"
-	@echo "  - Caddy reverse proxy"
+	@echo "🚀 Starting all development services in separate tabs..."
+	@echo "This will open tabs for:"
+	@echo "  - Tab 1: Rust backend (cargo run)"
+	@echo "  - Tab 2: Web app (Vite dev server)"
+	@echo "  - Tab 3: Desktop app (Tauri)"
+	@echo "  - Tab 4: Mobile app (Expo)"
+	@echo "  - Tab 5: Caddy reverse proxy"
 	@echo ""
 	@echo "Services will be available at:"
 	@echo "  - Web: https://dev.openhims.health"
@@ -66,30 +70,39 @@ dev-all: check-hosts
 	@echo "  - Desktop: Native app window"
 	@echo "  - Mobile: Expo dev tools"
 	@echo ""
-	@echo "Press Ctrl+C to stop all services"
+	@echo "Close tabs to stop individual services"
 	@echo ""
+	./scripts/start-dev-tabs.sh
+
+# Start all services in parallel in same terminal (for CI/containers)
+dev-parallel: check-hosts
+	@echo "🚀 Starting all development services in parallel..."
+	@echo "Press Ctrl+C to stop all services"
 	$(MAKE) -j5 start-rust start-web start-desktop start-mobile start-caddy
 
 # Individual service targets
 start-rust:
-	@echo "🦀 Starting Rust backend..."
-	cd . && cargo run
+	@echo "🦀 Building Rust SDK..."
+	cargo build
+	@echo "✅ Rust SDK built successfully!"
+	@echo "� SDK ready as library for frontend apps"
 
 start-web:
 	@echo "⚛️ Starting React web app..."
-	cd apps/web && pnpm dev
+	pnpm dev:web
 
 start-desktop:
 	@echo "🖥️ Starting Tauri desktop app..."
-	cd apps/desktop && pnpm tauri dev
+	pnpm dev:desktop
 
 start-mobile:
 	@echo "📱 Starting React Native mobile app..."
-	cd apps/mobile && pnpm start
+	pnpm dev:mobile
 
 start-caddy:
 	@echo "🌐 Starting Caddy reverse proxy..."
-	caddy run --config Caddyfile.dev
+	@echo "Note: Caddy requires sudo for certificate management and port binding"
+	sudo caddy run --config Caddyfile.dev
 
 # Stop all services
 stop:
@@ -98,7 +111,7 @@ stop:
 	-pkill -f "vite"
 	-pkill -f "tauri"
 	-pkill -f "expo"
-	-caddy stop
+	-sudo caddy stop
 	@echo "✅ All services stopped"
 
 # Clean build artifacts

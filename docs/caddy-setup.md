@@ -9,13 +9,21 @@ This project uses Make commands to orchestrate the complete development environm
 make dev
 ```
 
+**Note**: Caddy will prompt for sudo password for certificate management and port binding (80/443).
+
 This will:
 - Check and setup /etc/hosts if needed
-- Start Rust backend server
-- Start React web app (Vite)
-- Start Tauri desktop app
-- Start React Native mobile app (Expo)
-- Start Caddy reverse proxy
+- Open 5 separate Terminal tabs, each running:
+  - Tab 1: Rust backend server
+  - Tab 2: React web app (Vite)
+  - Tab 3: Tauri desktop app  
+  - Tab 4: React Native mobile app (Expo)
+  - Tab 5: Caddy reverse proxy
+
+**Alternative (parallel in same terminal):**
+```bash
+make dev-parallel
+```
 
 **Access the applications:**
 - Web App: https://dev.openhims.health
@@ -26,7 +34,8 @@ This will:
 ## Available Make Commands
 
 ### Development (Recommended)
-- `make dev` or `make dev-all` - Start ALL development services at once
+- `make dev` or `make dev-all` - Start ALL services in separate tabs
+- `make dev-parallel` - Start ALL services in same terminal (parallel)
 - `make setup` - Setup development environment (dependencies + hosts)
 - `make setup-hosts` - Configure /etc/hosts only
 
