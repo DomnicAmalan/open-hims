@@ -1,4 +1,5 @@
 // API Clients
+export * from './clients/base';
 export * from './clients/patients';
 export * from './clients/mock';
 
