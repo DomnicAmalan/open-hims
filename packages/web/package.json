@@ -1,0 +1,62 @@
+{
+  "name": "@open-hims/web",
+  "version": "1.0.0",
+  "description": "Web and Desktop UI components for HIMS using Mantine",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@open-hims/types": "workspace:*",
+    "@open-hims/utils": "workspace:*",
+    "@mantine/core": "^7.12.2",
+    "@mantine/hooks": "^7.12.2",
+    "@mantine/form": "^7.12.2",
+    "@mantine/dates": "^7.12.2",
+    "@mantine/notifications": "^7.12.2",
+    "@mantine/modals": "^7.12.2",
+    "@mantine/spotlight": "^7.12.2",
+    "@mantine/charts": "^7.12.2",
+    "@mantine/code-highlight": "^7.12.2",
+    "@mantine/dropzone": "^7.12.2",
+    "@mantine/nprogress": "^7.12.2",
+    "@tabler/icons-react": "^3.19.0",
+    "dayjs": "^1.11.10",
+    "clsx": "^2.1.1"
+  },
+  "devDependencies": {
+    "@open-hims/testing": "workspace:*",
+    "@storybook/addon-essentials": "^8.3.6",
+    "@storybook/addon-interactions": "^8.3.6",
+    "@storybook/addon-links": "^8.3.6",
+    "@storybook/blocks": "^8.3.6",
+    "@storybook/react": "^8.3.6",
+    "@storybook/react-vite": "^8.3.6",
+    "@types/react": "^18.3.26",
+    "@types/react-dom": "^18.3.7",
+    "postcss": "^8.5.6",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1",
+    "storybook": "^8.3.6",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

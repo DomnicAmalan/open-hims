@@ -1,0 +1,30 @@
+{
+  "name": "@open-hims/utils",
+  "version": "1.0.0",
+  "description": "Shared utilities for HIMS healthcare system",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@open-hims/types": "workspace:*",
+    "date-fns": "^2.30.0",
+    "crypto-js": "^4.2.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "@types/uuid": "^9.0.8",
+    "typescript": "^5.6.3"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}
