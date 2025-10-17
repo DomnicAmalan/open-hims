@@ -3,7 +3,15 @@
   "version": "1.0.0",
   "description": "Shared screens and components for web and desktop platforms using Mantine",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "files": [
     "dist/**/*"
   ],
@@ -15,8 +23,6 @@
   },
   "dependencies": {
     "@open-hims/types": "workspace:*",
-    "@open-hims/utils": "workspace:*",
-    "@open-hims/web": "workspace:*",
     "@open-hims/store": "workspace:*",
     "react-router-dom": "^6.28.0",
     "react-redux": "^8.1.3"

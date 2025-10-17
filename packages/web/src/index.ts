@@ -1,5 +1,6 @@
 // Mantine UI Components and Theme Provider
 export * from './components/theme-provider';
+export { theme, HimsThemeProvider } from './components/theme-provider';
 
 // Re-export Mantine components for convenience
 export {

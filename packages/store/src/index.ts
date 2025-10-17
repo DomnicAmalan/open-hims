@@ -104,9 +104,39 @@ export const createHimsStore = (config: StoreConfig = {}) => {
 export type RootState = ReturnType<ReturnType<typeof createRootReducer>>;
 export type AppDispatch = ReturnType<typeof createHimsStore>['store']['dispatch'];
 
+// Create default store instance for easy consumption
+const { store: defaultStore, persistor: defaultPersistor } = createHimsStore({
+  platform: 'web', // Default to web, can be overridden
+  enableDevTools: process.env.NODE_ENV !== 'production',
+});
+
+// Export default instances
+export const store = defaultStore;
+export const persistor = defaultPersistor;
+
 // Export slices
-export { default as patientsReducer } from './slices/patientsSlice';
-export * from './slices/patientsSlice';
+export { default as patientsReducer } from './slices/patientsSlice.js';
+export {
+  fetchPatients,
+  createPatient,
+  updatePatient,
+  deletePatient,
+  selectPatient,
+  setFilters,
+  setPagination,
+  searchPatients,
+  clearSearch,
+  clearError,
+  selectPatientsState,
+  selectAllPatients,
+  selectSelectedPatient,
+  selectPatientsLoading,
+  selectPatientsError,
+  selectPatientsPagination,
+  selectPatientsFilters,
+  selectPatientsSearchResults,
+  type PatientsState,
+} from './slices/patientsSlice.js';
 
 // Export storage utilities
 export * from './storage';

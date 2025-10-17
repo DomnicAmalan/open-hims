@@ -43,7 +43,7 @@ const himsRed: MantineColorsTuple = [
   '#b71c1c'
 ];
 
-const theme = createTheme({
+export const theme = createTheme({
   primaryColor: 'himsBlue',
   colors: {
     himsBlue,

@@ -5,8 +5,6 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -25,7 +23,12 @@
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@open-hims/types": ["../../packages/types/src"],
+      "@open-hims/utils": ["../../packages/utils/src"],
+      "@open-hims/web": ["../../packages/web/src"],
+      "@open-hims/store": ["../../packages/store/src"],
+      "@open-hims/screens-web": ["../../packages/screens-web/src"]
     }
   },
   "include": [

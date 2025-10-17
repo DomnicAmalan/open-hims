@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk, type Reducer } from '@reduxjs/toolkit';
 import { 
   UIPatient, 
   CreatePatientRequest, 
@@ -254,7 +254,8 @@ export const {
   clearError,
 } = patientsSlice.actions;
 
-export default patientsSlice.reducer;
+const reducer: Reducer<PatientsState> = patientsSlice.reducer;
+export default reducer;
 
 // Selectors
 export const selectPatientsState = (state: { patients: PatientsState }) => state.patients;

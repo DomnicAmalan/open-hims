@@ -1,51 +1,41 @@
-import { useState } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
-import './App.css';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { MantineProvider, createTheme } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
+import { ModalsProvider } from '@mantine/modals';
+import { store } from '@open-hims/store';
+import { DashboardScreen, PatientsScreen, TestButton } from '@open-hims/screens-web';
+import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
+
+// Simple theme for healthcare app
+const theme = createTheme({
+  primaryColor: 'blue',
+  defaultRadius: 'md',
+});
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState('');
-  const [name, setName] = useState('');
-
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke('greet', { name }));
-  }
-
   return (
-    <div className="container">
-      <h1>Welcome to HIMS Desktop!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src="/react.svg" className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-
-      <p>{greetMsg}</p>
-    </div>
+    <MantineProvider theme={theme}>
+      <Notifications position="top-right" />
+      <ModalsProvider>
+        <Provider store={store}>
+          <Router>
+            <Routes>
+              <Route path="/" element={<DashboardScreen />} />
+              <Route path="/patients" element={<PatientsScreen />} />
+              <Route path="/test" element={
+                <div style={{ padding: '2rem' }}>
+                  <h1>Desktop Test Page</h1>
+                  <TestButton label="Desktop Test Button" />
+                </div>
+              } />
+            </Routes>
+          </Router>
+        </Provider>
+      </ModalsProvider>
+    </MantineProvider>
   );
 }
 
