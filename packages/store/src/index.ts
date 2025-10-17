@@ -3,7 +3,8 @@ import createSagaMiddleware from 'redux-saga';
 import { persistReducer, persistStore } from 'redux-persist';
 import type { StorageConfig, StorageEngine, Platform } from './types';
 import { createPlatformStorage } from './storage';
-import patientsReducer from './slices/patientsSlice';
+import { patientsReducer } from './slices';
+import { rootSaga } from './sagas';
 
 // Import other slices (to be created)
 // import complianceSlice from './slices/complianceSlice';
@@ -88,9 +89,9 @@ export const createHimsStore = (config: StoreConfig = {}) => {
   // Create persistor
   const persistor = persistStore(store);
 
-  // Run root saga (to be implemented)
+  // Run root saga
   if (enableSaga) {
-    // sagaMiddleware.run(rootSaga);
+    sagaMiddleware.run(rootSaga);
   }
 
   return {
@@ -114,30 +115,13 @@ const { store: defaultStore, persistor: defaultPersistor } = createHimsStore({
 export const store = defaultStore;
 export const persistor = defaultPersistor;
 
-// Export slices
-export { default as patientsReducer } from './slices/patientsSlice.js';
-export {
-  fetchPatients,
-  createPatient,
-  updatePatient,
-  deletePatient,
-  selectPatient,
-  setFilters,
-  setPagination,
-  searchPatients,
-  clearSearch,
-  clearError,
-  selectPatientsState,
-  selectAllPatients,
-  selectSelectedPatient,
-  selectPatientsLoading,
-  selectPatientsError,
-  selectPatientsPagination,
-  selectPatientsFilters,
-  selectPatientsSearchResults,
-  type PatientsState,
-} from './slices/patientsSlice.js';
+// Export slices and sagas (thin re-exports)
+export * from './slices';
+export * from './sagas';
 
 // Export storage utilities
 export * from './storage';
 export * from './types';
+
+// Version information
+export const STORE_VERSION = '0.1.0';

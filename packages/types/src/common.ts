@@ -1,3 +1,5 @@
+import { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+
 // Core Common Types
 export interface BaseEntity {
   id: string;
@@ -33,6 +35,9 @@ export interface ApiResponse<T> {
   error?: ApiError;
   message?: string;
   timestamp: string;
+  status?: number;
+  statusText?: string;
+  headers?: Record<string, string>;
 }
 
 export interface ApiError {
@@ -40,6 +45,52 @@ export interface ApiError {
   message: string;
   details?: Record<string, any>;
   stack?: string;
+  status?: number;
+  timestamp?: string;
+}
+
+// Enhanced API Configuration extending Axios config for better control
+export interface ApiConfig extends Omit<AxiosRequestConfig, 'url' | 'method' | 'data'> {
+  baseURL?: string;
+  timeout?: number;
+  retries?: number;
+  retryDelay?: number;
+  enableLogging?: boolean;
+  enableRetry?: boolean;
+}
+
+// Authentication token interface
+export interface AuthToken {
+  accessToken: string;
+  refreshToken?: string;
+  tokenType?: string;
+  expiresAt?: number;
+}
+
+// Properly typed interceptor interfaces using Axios types
+export interface RequestInterceptor {
+  onFulfilled?: (config: AxiosRequestConfig) => AxiosRequestConfig | Promise<AxiosRequestConfig>;
+  onRejected?: (error: AxiosError) => any;
+}
+
+export interface ResponseInterceptor {
+  onFulfilled?: (response: AxiosResponse) => AxiosResponse | Promise<AxiosResponse>;
+  onRejected?: (error: AxiosError) => any;
+}
+
+// Enhanced API Error using Axios error structure
+export interface HimsApiError extends ApiError {
+  originalError?: AxiosError;
+  config?: AxiosRequestConfig;
+  response?: AxiosResponse;
+}
+
+// Enhanced query parameters
+export interface QueryParams extends PaginationParams {
+  sort?: string;
+  order?: 'asc' | 'desc';
+  search?: string;
+  filters?: Record<string, any>;
 }
 
 // User and Authentication Types

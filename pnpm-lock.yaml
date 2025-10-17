@@ -22,7 +22,7 @@ importers:
         specifier: ^8.46.1
         version: 8.46.1(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
       eslint:
-        specifier: ^9.15.0
+        specifier: ^9.37.0
         version: 9.37.0(jiti@1.21.7)
       prettier:
         specifier: ^3.6.2
@@ -307,6 +307,22 @@ importers:
         specifier: ^3.5.0
         version: 3.5.0(vite@4.5.14(@types/node@24.8.1)(lightningcss@1.30.2)(sugarss@5.0.1(postcss@8.5.6))(terser@5.44.0))
 
+  packages/api:
+    dependencies:
+      '@open-hims/types':
+        specifier: workspace:*
+        version: link:../types
+      axios:
+        specifier: ^1.12.2
+        version: 1.12.2
+    devDependencies:
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
   packages/mobile:
     dependencies:
       '@open-hims/types':
@@ -401,6 +417,9 @@ importers:
 
   packages/store:
     dependencies:
+      '@open-hims/api':
+        specifier: workspace:*
+        version: link:../api
       '@open-hims/types':
         specifier: workspace:*
         version: link:../types
@@ -477,6 +496,10 @@ importers:
         version: 5.9.3
 
   packages/types:
+    dependencies:
+      axios:
+        specifier: ^1.12.2
+        version: 1.12.2
     devDependencies:
       tsup:
         specifier: ^8.5.0
@@ -506,6 +529,9 @@ importers:
       '@types/uuid':
         specifier: ^9.0.8
         version: 9.0.8
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.3)(yaml@2.8.1)
       typescript:
         specifier: ^5.6.3
         version: 5.9.3

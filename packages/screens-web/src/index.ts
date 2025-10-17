@@ -9,3 +9,6 @@ export { TestButton } from './components/TestButton';
 
 // Hooks - shared between web and desktop apps
 export { useStorage } from './hooks/useStorage';
+
+// Version information
+export const SCREENS_WEB_VERSION = '1.0.0';

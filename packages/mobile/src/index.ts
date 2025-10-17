@@ -33,3 +33,6 @@ export {
   Searchbar,
   SegmentedButtons,
 } from 'react-native-paper';
+
+// Version information
+export const MOBILE_VERSION = '1.0.0';

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Container, Title, Button, Group, Text } from '@mantine/core';
 import { useSelector, useDispatch } from 'react-redux';
-import { PatientList } from '../components/PatientList';
 import { fetchPatients } from '@open-hims/store';
 import type { RootState, AppDispatch } from '@open-hims/store';
+import { PatientList } from '@/components/PatientList';
 
 export function PatientsScreen() {
   const dispatch = useDispatch<AppDispatch>();

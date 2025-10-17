@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@open-hims/types": "workspace:*",
+    "@open-hims/api": "workspace:*",
     "@reduxjs/toolkit": "^1.9.7",
     "immer": "^10.1.3",
     "redux-persist": "^6.0.0",

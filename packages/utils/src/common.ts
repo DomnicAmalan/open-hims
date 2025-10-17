@@ -15,7 +15,7 @@ export function generateShortId(length: number = 8): string {
   return result;
 }
 
-export function generateMRN(prefix: string = 'MRN', length: number = 8): string {
+export function generateSimpleMRN(prefix: string = 'MRN', length: number = 8): string {
   const numbers = '0123456789';
   let result = prefix;
   for (let i = 0; i < length; i++) {

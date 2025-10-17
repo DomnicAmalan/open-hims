@@ -101,3 +101,6 @@ export {
   openConfirmModal,
   openContextModal,
 } from '@mantine/modals';
+
+// Version information
+export const WEB_VERSION = '1.0.0';
