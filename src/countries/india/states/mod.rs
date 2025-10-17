@@ -1,13 +1,14 @@
-pub mod maharashtra;
-pub mod karnataka;
-pub mod tamil_nadu;
-pub mod kerala;
-pub mod gujarat;
-pub mod rajasthan;
-pub mod uttar_pradesh;
-pub mod west_bengal;
-pub mod telangana;
-pub mod andhra_pradesh;
+// TODO: Implement state modules
+// pub mod maharashtra;
+// pub mod karnataka;
+// pub mod tamil_nadu;
+// pub mod kerala;
+// pub mod gujarat;
+// pub mod rajasthan;
+// pub mod uttar_pradesh;
+// pub mod west_bengal;
+// pub mod telangana;
+// pub mod andhra_pradesh;
 
 use serde::{Deserialize, Serialize};
 use crate::core::HimsError;
@@ -55,11 +56,11 @@ impl IndianStateRegistry {
     }
 
     fn initialize_states(&mut self) {
-        self.register_state(maharashtra::get_maharashtra_config());
-        self.register_state(karnataka::get_karnataka_config());
-        self.register_state(tamil_nadu::get_tamil_nadu_config());
-        self.register_state(kerala::get_kerala_config());
-        // Add more states
+        // TODO: Register states as they are implemented
+        // self.register_state(maharashtra::get_maharashtra_config());
+        // self.register_state(karnataka::get_karnataka_config());
+        // self.register_state(tamil_nadu::get_tamil_nadu_config());
+        // self.register_state(kerala::get_kerala_config());
     }
 
     pub fn register_state(&mut self, config: IndianStateConfig) {
@@ -79,7 +80,7 @@ impl Default for IndianStateRegistry {
     }
 }
 
-pub use maharashtra::*;
-pub use karnataka::*;
-pub use tamil_nadu::*;
-pub use kerala::*;
+// pub use maharashtra::*;
+// pub use karnataka::*;
+// pub use tamil_nadu::*;
+// pub use kerala::*;

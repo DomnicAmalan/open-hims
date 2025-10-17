@@ -1,6 +1,7 @@
 use crate::countries::common::*;
 use crate::countries::usa::{federal::get_us_federal_config, states::california::get_california_config};
-use crate::countries::india::{central::get_india_central_config, states::maharashtra::get_maharashtra_config};
+// TODO: Re-enable when state modules are implemented
+// use crate::countries::india::{central::get_india_central_config, states::maharashtra::get_maharashtra_config};
 use crate::core::HimsError;
 
 /// Example usage of the inheritance system
@@ -15,16 +16,18 @@ impl ConfigurationExample {
         manager.register_federal_config("US".to_string(), get_us_federal_config());
         manager.register_state_config("CA".to_string(), get_california_config());
         
-        manager.register_federal_config("IN".to_string(), get_india_central_config());
-        manager.register_state_config("MH".to_string(), get_maharashtra_config());
+        // TODO: Re-enable when state modules are implemented
+        // manager.register_federal_config("IN".to_string(), get_india_central_config());
+        // manager.register_state_config("MH".to_string(), get_maharashtra_config());
 
         // Get effective configuration for California (inherits from US Federal)
         let ca_config = manager.get_effective_config("CA")?;
         println!("California effective regulations: {:?}", ca_config.base_regulations);
 
+        // TODO: Re-enable when state modules are implemented
         // Get effective configuration for Maharashtra (inherits from India Central)
-        let mh_config = manager.get_effective_config("MH")?;
-        println!("Maharashtra effective regulations: {:?}", mh_config.base_regulations);
+        // let mh_config = manager.get_effective_config("MH")?;
+        // println!("Maharashtra effective regulations: {:?}", mh_config.base_regulations);
 
         // Validate compliance chain
         let ca_compliance = manager.validate_compliance_chain("CA", "patient_access")?;

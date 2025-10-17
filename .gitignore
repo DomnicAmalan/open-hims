@@ -133,3 +133,17 @@ storybook-static/
 # Temporary files
 tmp/
 temp/
+# Temporary asset generation scripts
+copy-logos.sh
+ASSETS_QUICK_REF.md
+
+# Asset source files
+assets-source/
+
+# macOS
+.DS_Store
+*.swp
+
+# Logs
+logs/
+*.log

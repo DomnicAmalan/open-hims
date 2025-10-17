@@ -13,6 +13,11 @@ categories = ["api-bindings", "web-programming"]
 name = "hims_core_sdk"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
+# TODO: Implement server binary
+# [[bin]]
+# name = "hims-server"
+# path = "src/bin/server.rs"
+
 [dependencies]
 # Core utilities
 serde = { version = "1.0", features = ["derive"] }
@@ -67,10 +72,6 @@ serial_test = "3.0"
 
 [build-dependencies]
 uniffi = { version = "0.25", features = ["build"] }
-
-[[bin]]
-name = "uniffi-bindgen"
-path = "uniffi-bindgen.rs"
 
 [features]
 default = ["fhir", "hl7v2", "dicom", "abdm"]

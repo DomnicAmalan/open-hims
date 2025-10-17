@@ -3,11 +3,12 @@ pub mod texas;
 pub mod florida;
 pub mod new_york;
 pub mod illinois;
-pub mod pennsylvania;
-pub mod ohio;
-pub mod georgia;
-pub mod north_carolina;
-pub mod michigan;
+// TODO: Implement remaining state modules
+// pub mod pennsylvania;
+// pub mod ohio;
+// pub mod georgia;
+// pub mod north_carolina;
+// pub mod michigan;
 
 use serde::{Deserialize, Serialize};
 use crate::core::HimsError;
@@ -54,7 +55,28 @@ impl UsStateRegistry {
     }
 
     fn initialize_states(&mut self) {
-        self.register_state(california::get_california_config());
+        // Convert InheritableStateConfig to StateConfig for California
+        let ca_inheritable = california::get_california_config();
+        let ca_config = StateConfig {
+            state_code: ca_inheritable.state_code,
+            state_name: ca_inheritable.state_name,
+            additional_regulations: ca_inheritable.additional_regulations,
+            state_licensing_requirements: vec!["California Medical Board License".to_string()],
+            data_breach_notification_laws: vec!["California Civil Code Section 1798.82".to_string()],
+            telemedicine_regulations: TelemedicineRegulations {
+                allowed: true,
+                cross_state_practice: false,
+                prescription_restrictions: vec!["Controlled substances require in-person visit".to_string()],
+                required_standards: vec!["CMBC Telemedicine Guidelines".to_string()],
+            },
+            prescription_monitoring: PrescriptionMonitoring {
+                pdmp_required: true,
+                reporting_timeframe_hours: 24,
+                controlled_substances_only: true,
+            },
+        };
+        self.register_state(ca_config);
+        
         self.register_state(texas::get_texas_config());
         self.register_state(florida::get_florida_config());
         self.register_state(new_york::get_new_york_config());

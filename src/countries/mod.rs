@@ -1,18 +1,19 @@
 pub mod usa;
 pub mod india;
-pub mod eu;
-pub mod canada;
-pub mod australia;
-pub mod uk;
+// TODO: Implement remaining country modules
+// pub mod eu;
+// pub mod canada;
+// pub mod australia;
+// pub mod uk;
 pub mod common;
 pub mod inheritance_examples;
 
 pub use usa::*;
 pub use india::*;
-pub use eu::*;
-pub use canada::*;
-pub use australia::*;
-pub use uk::*;
+// pub use eu::*;
+// pub use canada::*;
+// pub use australia::*;
+// pub use uk::*;
 pub use common::*;
 pub use inheritance_examples::*;
 
@@ -62,10 +63,11 @@ impl CountryRegistry {
         // Initialize with default country configurations
         self.register_country(usa::get_usa_config());
         self.register_country(india::get_india_config());
-        self.register_country(eu::get_eu_config());
-        self.register_country(canada::get_canada_config());
-        self.register_country(australia::get_australia_config());
-        self.register_country(uk::get_uk_config());
+        // TODO: Register remaining countries as they are implemented
+        // self.register_country(eu::get_eu_config());
+        // self.register_country(canada::get_canada_config());
+        // self.register_country(australia::get_australia_config());
+        // self.register_country(uk::get_uk_config());
     }
 
     pub fn register_country(&mut self, config: CountryConfig) {

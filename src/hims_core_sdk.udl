@@ -1,22 +1,24 @@
 namespace hims_core_sdk {
-    // Core SDK interface
-    interface HimsCore {
-        constructor(HimsConfig config);
-        string initialize();
-        
-        // Country and state configuration methods
-        [Throws=HimsError]
-        sequence<string> get_supported_countries();
-        
-        [Throws=HimsError]
-        sequence<string> get_supported_states(string country_code);
-        
-        [Throws=HimsError]
-        boolean validate_compliance(string country_code, string? state_code, string operation);
-        
-        [Throws=HimsError]
-        sequence<ComplianceCheck> get_compliance_requirements(string country_code, string? state_code);
-    };
+    string get_version();
+};
+
+// Core SDK interface
+interface HimsCore {
+    constructor(HimsConfig config);
+    string initialize();
+    
+    // Country and state configuration methods
+    [Throws=HimsError]
+    sequence<string> get_supported_countries();
+    
+    [Throws=HimsError]
+    sequence<string> get_supported_states(string country_code);
+    
+    [Throws=HimsError]
+    boolean validate_compliance(string country_code, string? state_code, string operation);
+    
+    [Throws=HimsError]
+    sequence<ComplianceCheck> get_compliance_requirements(string country_code, string? state_code);
 };
 
 // Configuration structure
