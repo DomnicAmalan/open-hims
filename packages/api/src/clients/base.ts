@@ -17,11 +17,20 @@ export class HimsApiClient {
   private config: ApiConfig;
 
   constructor(config: ApiConfig = {}) {
-    // Browser-compatible environment variable access
+    // Cross-platform environment variable access (React Native, Browser, Node.js)
     const getEnvVar = (key: string, defaultValue: string = ''): string => {
       // Node.js environment
       if (typeof process !== 'undefined' && process.env) {
+        console.log(process.env);
         return process.env[key] || defaultValue;
+      }
+      
+      // React Native environment - check for global env
+      if (typeof global !== 'undefined' && (global as any).__DEV__ !== undefined) {
+        // React Native doesn't have process.env in runtime, use defaults
+        if (key === 'HIMS_API_BASE_URL') {
+          return defaultValue;
+        }
       }
       
       // Browser environment - check for Vite env vars
@@ -29,18 +38,6 @@ export class HimsApiClient {
         const viteEnv = (window as any).__VITE_ENV__;
         if (viteEnv && viteEnv[key]) {
           return viteEnv[key];
-        }
-        
-        // Check for import.meta.env (Vite) - use try/catch for safety
-        try {
-          if (typeof import.meta !== 'undefined') {
-            const metaEnv = (import.meta as any).env;
-            if (metaEnv && metaEnv[key]) {
-              return metaEnv[key] || defaultValue;
-            }
-          }
-        } catch {
-          // Ignore import.meta errors in non-Vite environments
         }
       }
       
@@ -53,21 +50,16 @@ export class HimsApiClient {
         return process.env.NODE_ENV === 'development';
       }
       
+      // React Native environment
+      if (typeof global !== 'undefined' && (global as any).__DEV__ !== undefined) {
+        return (global as any).__DEV__;
+      }
+      
       // Browser environment - check for development indicators
       if (typeof window !== 'undefined') {
         // Check hostname for localhost
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
           return true;
-        }
-        
-        // Check for Vite dev mode - use try/catch for safety
-        try {
-          if (typeof import.meta !== 'undefined') {
-            const metaEnv = (import.meta as any).env;
-            return metaEnv && metaEnv.DEV === true;
-          }
-        } catch {
-          // Ignore import.meta errors in non-Vite environments
         }
       }
       

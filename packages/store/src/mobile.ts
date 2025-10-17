@@ -11,7 +11,7 @@ export const createMobileStore = (options: {
 } = {}) => {
   const {
     useSecureStorage = false,
-    enableDevTools = process.env.NODE_ENV === 'development',
+    enableDevTools = (global as any).__DEV__ || false,
     persistWhitelist = ['patients', 'config'],
     persistBlacklist = ['audit'],
   } = options;

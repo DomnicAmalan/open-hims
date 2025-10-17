@@ -17,7 +17,7 @@ import {
   selectPatientsLoading,
   RootState,
   AppDispatch
-} from '@open-hims/store';
+} from '@open-hims/store/mobile';
 
 export default function HomeScreen({ navigation }: any) {
   const dispatch = useDispatch<AppDispatch>();
