@@ -13,12 +13,16 @@ pub mod models;
 pub mod modules;
 pub mod database;
 
+// Utility modules
+pub mod utils;
+
 // Re-exports for easier access
 pub use crate::core::*;
 pub use crate::standards::*;
 pub use crate::security::*;
 pub use crate::exporters::*;
 pub use crate::countries::*;
+pub use crate::utils::*;
 
 /// Configuration for HIMS SDK
 pub struct HimsConfig {

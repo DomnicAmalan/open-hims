@@ -30,7 +30,7 @@ impl PatientModule {
     /// Create a new Patient Module with simplified setup
     pub fn new(db_pool: PgPool) -> Self {
         let service = Arc::new(PatientService::new(db_pool));
-        let controller = Arc::new(PatientController::new(service.clone()));
+        let controller = Arc::new(PatientController::new_simple(service.clone()));
         
         Self {
             service,
@@ -40,7 +40,7 @@ impl PatientModule {
 
     /// Register routes for this module
     pub fn routes(&self) -> Router {
-        self.controller.routes()
+        self.controller.clone().routes()
     }
 
     /// Get service instance 

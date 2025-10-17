@@ -1,7 +1,6 @@
 use crate::core::HimsError;
 use crate::standards::fhir::models::*;
 use reqwest::Client;
-use serde_json::Value;
 
 /// FHIR client for communicating with FHIR servers
 pub struct FhirClient {

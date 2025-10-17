@@ -8,6 +8,7 @@ pub mod appointment;
 pub mod medical_record;
 pub mod audit;
 pub mod auth;
+pub mod authorization;
 
 pub use patient::PatientModule;
 pub use appointment::AppointmentModule;

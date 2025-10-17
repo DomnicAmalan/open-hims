@@ -21,6 +21,11 @@ impl PatientService {
         Self { pool }
     }
 
+    /// Get the database pool (for dependency injection)
+    pub fn get_db_pool(&self) -> PgPool {
+        self.pool.clone()
+    }
+
     /// Create a new patient with FHIR compliance
     pub async fn create_patient(&self, request: PatientCreateRequest) -> Result<Patient> {
         // Create patient with FHIR metadata
