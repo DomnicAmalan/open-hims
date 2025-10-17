@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { View, Text } from '@open-hims/mobile';
 
 export default function PatientDetailScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Patient Details</Text>
-      <Text style={styles.subtitle}>Coming soon...</Text>
+      <Text variant="headlineMedium" style={styles.title}>Patient Details</Text>
+      <Text variant="bodyLarge" style={styles.subtitle}>Coming soon...</Text>
     </View>
   );
 }

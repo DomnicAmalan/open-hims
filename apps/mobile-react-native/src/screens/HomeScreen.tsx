@@ -1,17 +1,28 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import { 
+  View,
+  ScrollView,
+  Surface,
+  Text,
+  Card,
+  Button,
+  ActivityIndicator,
+  TouchableRipple,
+} from '@open-hims/mobile';
 import { 
   fetchPatients,
   selectAllPatients,
   selectPatientsLoading,
-  RootState
+  RootState,
+  AppDispatch
 } from '@open-hims/store';
 
 export default function HomeScreen({ navigation }: any) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const patients = useSelector((state: RootState) => selectAllPatients(state));
-  const loading = useSelector((state: RootState) => selectPatientsLoading(state));
+  const patientsState = useSelector((state: RootState) => selectPatientsLoading(state));
 
   const handleViewPatients = () => {
     navigation.navigate('PatientList');
@@ -23,84 +34,100 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Open HIMS Mobile</Text>
-        <Text style={styles.subtitle}>Healthcare Information Management System</Text>
-      </View>
+      <Surface style={styles.header}>
+        <Text variant="headlineMedium" style={styles.title}>Open HIMS Mobile</Text>
+        <Text variant="bodyMedium" style={styles.subtitle}>Healthcare Information Management System</Text>
+      </Surface>
 
       <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{patients.length}</Text>
-          <Text style={styles.statLabel}>Total Patients</Text>
-        </View>
+        <Card style={styles.statCard}>
+          <Card.Content>
+            <Text variant="titleLarge" style={styles.statNumber}>{patients.length}</Text>
+            <Text variant="bodySmall" style={styles.statLabel}>Total Patients</Text>
+          </Card.Content>
+        </Card>
         
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>12</Text>
-          <Text style={styles.statLabel}>Active Cases</Text>
-        </View>
+        <Card style={styles.statCard}>
+          <Card.Content>
+            <Text variant="titleLarge" style={styles.statNumber}>12</Text>
+            <Text variant="bodySmall" style={styles.statLabel}>Active Cases</Text>
+          </Card.Content>
+        </Card>
         
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>5</Text>
-          <Text style={styles.statLabel}>Pending Tasks</Text>
-        </View>
+        <Card style={styles.statCard}>
+          <Card.Content>
+            <Text variant="titleLarge" style={styles.statNumber}>5</Text>
+            <Text variant="bodySmall" style={styles.statLabel}>Pending Tasks</Text>
+          </Card.Content>
+        </Card>
       </View>
 
       <View style={styles.actionsContainer}>
-        <TouchableOpacity 
+        <Button 
+          mode="contained"
           style={styles.actionButton} 
           onPress={handleViewPatients}
         >
-          <Text style={styles.actionButtonText}>View Patients</Text>
-        </TouchableOpacity>
+          View Patients
+        </Button>
 
-        <TouchableOpacity 
+        <Button 
+          mode="contained"
           style={styles.actionButton} 
           onPress={handleLoadPatients}
-          disabled={loading.fetchPatients}
+          disabled={patientsState.fetchPatients}
+          loading={patientsState.fetchPatients}
         >
-          <Text style={styles.actionButtonText}>
-            {loading.fetchPatients ? 'Loading...' : 'Refresh Data'}
-          </Text>
-        </TouchableOpacity>
+          {patientsState.fetchPatients ? 'Loading...' : 'Refresh Data'}
+        </Button>
 
-        <TouchableOpacity 
+        <Button 
+          mode="contained"
           style={styles.actionButton}
           onPress={() => navigation.navigate('Settings')}
         >
-          <Text style={styles.actionButtonText}>Settings</Text>
-        </TouchableOpacity>
+          Settings
+        </Button>
       </View>
 
       <View style={styles.featuresContainer}>
-        <Text style={styles.sectionTitle}>Features</Text>
+        <Text variant="titleLarge" style={styles.sectionTitle}>Features</Text>
         
-        <View style={styles.featureItem}>
-          <Text style={styles.featureTitle}>🏥 Patient Management</Text>
-          <Text style={styles.featureDescription}>
-            Comprehensive patient records with FHIR compliance
-          </Text>
-        </View>
+        <Card style={styles.featureItem}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.featureTitle}>🏥 Patient Management</Text>
+            <Text variant="bodyMedium" style={styles.featureDescription}>
+              Comprehensive patient records with FHIR compliance
+            </Text>
+          </Card.Content>
+        </Card>
 
-        <View style={styles.featureItem}>
-          <Text style={styles.featureTitle}>🔒 Security & Compliance</Text>
-          <Text style={styles.featureDescription}>
-            HIPAA, GDPR compliant with audit logging
-          </Text>
-        </View>
+        <Card style={styles.featureItem}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.featureTitle}>🔒 Security & Compliance</Text>
+            <Text variant="bodyMedium" style={styles.featureDescription}>
+              HIPAA, GDPR compliant with audit logging
+            </Text>
+          </Card.Content>
+        </Card>
 
-        <View style={styles.featureItem}>
-          <Text style={styles.featureTitle}>🌍 Multi-Country Support</Text>
-          <Text style={styles.featureDescription}>
-            Support for various healthcare regulations
-          </Text>
-        </View>
+        <Card style={styles.featureItem}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.featureTitle}>🌍 Multi-Country Support</Text>
+            <Text variant="bodyMedium" style={styles.featureDescription}>
+              Support for various healthcare regulations
+            </Text>
+          </Card.Content>
+        </Card>
 
-        <View style={styles.featureItem}>
-          <Text style={styles.featureTitle}>📱 Cross-Platform</Text>
-          <Text style={styles.featureDescription}>
-            Shared components across web, mobile, and desktop
-          </Text>
-        </View>
+        <Card style={styles.featureItem}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.featureTitle}>📱 Cross-Platform</Text>
+            <Text variant="bodyMedium" style={styles.featureDescription}>
+              Shared components across web, mobile, and desktop
+            </Text>
+          </Card.Content>
+        </Card>
       </View>
     </ScrollView>
   );

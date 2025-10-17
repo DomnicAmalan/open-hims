@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { View, Text } from '@open-hims/mobile';
 
 export default function SettingsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
-      <Text style={styles.subtitle}>Configuration options coming soon...</Text>
+      <Text variant="headlineMedium" style={styles.title}>Settings</Text>
+      <Text variant="bodyLarge" style={styles.subtitle}>Configuration options coming soon...</Text>
     </View>
   );
 }

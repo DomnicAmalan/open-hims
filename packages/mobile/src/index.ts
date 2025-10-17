@@ -4,6 +4,9 @@ export * from './providers/theme-provider';
 // Rust Core SDK Bindings for React Native
 export * from './bindings';
 
+// Re-export essential React Native components
+export { View, ScrollView, FlatList, SectionList } from 'react-native';
+
 // Re-export React Native Paper for convenience
 export {
   Button,
@@ -32,6 +35,8 @@ export {
   BottomNavigation,
   Searchbar,
   SegmentedButtons,
+  Text,
+  TouchableRipple,
 } from 'react-native-paper';
 
 // Version information

@@ -1,6 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, FlatList } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import { 
+  View,
+  Text,
+  Card,
+  ActivityIndicator,
+  Surface,
+  TouchableRipple,
+} from '@open-hims/mobile';
 import { RootState, selectPatient } from '@open-hims/store';
 
 export default function PatientListScreen({ navigation }: any) {
@@ -15,55 +23,57 @@ export default function PatientListScreen({ navigation }: any) {
   };
 
   const renderPatientItem = ({ item: patient }: { item: any }) => (
-    <TouchableOpacity 
-      style={styles.patientCard}
-      onPress={() => handlePatientPress(patient)}
-    >
-      <View style={styles.patientHeader}>
-        <Text style={styles.patientName}>
-          {patient.firstName} {patient.lastName}
-        </Text>
-        <Text style={styles.patientMrn}>MRN: {patient.mrn}</Text>
-      </View>
-      
-      <View style={styles.patientDetails}>
-        <Text style={styles.patientDetail}>
-          Age: {calculateAge(patient.dateOfBirth)} • {capitalizeFirst(patient.gender)}
-        </Text>
-        <Text style={styles.patientDetail}>
-          📧 {patient.email || 'No email'}
-        </Text>
-        <Text style={styles.patientDetail}>
-          📞 {patient.phone || 'No phone'}
-        </Text>
-      </View>
+    <Card style={styles.patientCard}>
+      <TouchableRipple onPress={() => handlePatientPress(patient)}>
+        <Card.Content>
+          <View style={styles.patientHeader}>
+            <Text variant="titleMedium" style={styles.patientName}>
+              {patient.firstName} {patient.lastName}
+            </Text>
+            <Text variant="labelMedium" style={styles.patientMrn}>MRN: {patient.mrn}</Text>
+          </View>
+          
+          <View style={styles.patientDetails}>
+            <Text variant="bodyMedium" style={styles.patientDetail}>
+              Age: {calculateAge(patient.dateOfBirth)} • {capitalizeFirst(patient.gender)}
+            </Text>
+            <Text variant="bodyMedium" style={styles.patientDetail}>
+              📧 {patient.email || 'No email'}
+            </Text>
+            <Text variant="bodyMedium" style={styles.patientDetail}>
+              📞 {patient.phone || 'No phone'}
+            </Text>
+          </View>
 
-      {patient.address && (
-        <Text style={styles.patientAddress}>
-          📍 {patient.address.city}, {patient.address.state}
-        </Text>
-      )}
-    </TouchableOpacity>
+          {patient.address && (
+            <Text variant="bodySmall" style={styles.patientAddress}>
+              📍 {patient.address.city}, {patient.address.state}
+            </Text>
+          )}
+        </Card.Content>
+      </TouchableRipple>
+    </Card>
   );
 
   if (loading.fetchPatients) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading patients...</Text>
+        <ActivityIndicator animating={true} size="large" />
+        <Text variant="bodyLarge" style={styles.loadingText}>Loading patients...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Patients ({displayPatients.length})</Text>
-      </View>
+      <Surface style={styles.header}>
+        <Text variant="titleLarge" style={styles.headerTitle}>Patients ({displayPatients.length})</Text>
+      </Surface>
 
       {displayPatients.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No patients found</Text>
-          <Text style={styles.emptySubtext}>
+          <Text variant="titleMedium" style={styles.emptyText}>No patients found</Text>
+          <Text variant="bodyMedium" style={styles.emptySubtext}>
             Add patients or refresh to see data
           </Text>
         </View>
