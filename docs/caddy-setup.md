@@ -1,41 +1,48 @@
-# Web Server Setup with Caddy
+# Development Environment Setup
 
-This project uses Caddy as a reverse proxy and web server for both development and production environments.
+This project uses Make commands to orchestrate the complete development environment including Rust backend, React web app, Tauri desktop app, React Native mobile app, and Caddy reverse proxy.
 
 ## Quick Start
 
-1. **Setup local hosts** (required for development):
-   ```bash
-   ./scripts/setup-hosts.sh
-   ```
+**One command to start everything:**
+```bash
+make dev
+```
 
-2. **Start development environment**:
-   ```bash
-   # Terminal 1: Start all development servers
-   pnpm dev
-   
-   # Terminal 2: Start Caddy reverse proxy
-   caddy run --config Caddyfile.dev
-   ```
+This will:
+- Check and setup /etc/hosts if needed
+- Start Rust backend server
+- Start React web app (Vite)
+- Start Tauri desktop app
+- Start React Native mobile app (Expo)
+- Start Caddy reverse proxy
 
-3. **Access the application**:
-   - Web App: https://dev.openhims.health
-   - API: https://api-dev.openhims.health
+**Access the applications:**
+- Web App: https://dev.openhims.health
+- API: https://api-dev.openhims.health
+- Desktop: Native application window
+- Mobile: Expo development tools
 
-## Available Commands
+## Available Make Commands
 
-### System Setup
-- `./scripts/setup-hosts.sh` - Configure /etc/hosts for local development domains
+### Development (Recommended)
+- `make dev` or `make dev-all` - Start ALL development services at once
+- `make setup` - Setup development environment (dependencies + hosts)
+- `make setup-hosts` - Configure /etc/hosts only
 
-### Caddy Commands (run directly)
-#### Development
-- `caddy run --config Caddyfile.dev` - Start Caddy with development configuration
-- `caddy reload --config Caddyfile.dev` - Reload development configuration
-- `caddy stop` - Stop Caddy server
+### Individual Services
+- `make start-rust` or `make rust` - Start Rust backend only
+- `make start-web` or `make web` - Start React web app only  
+- `make start-desktop` or `make desktop` - Start Tauri desktop app only
+- `make start-mobile` or `make mobile` - Start React Native mobile app only
+- `make start-caddy` or `make caddy` - Start Caddy reverse proxy only
 
-#### Production
-- `caddy run --config Caddyfile.prod` - Start Caddy with production configuration
-- `caddy reload --config Caddyfile.prod` - Reload production configuration
+### Cleanup
+- `make stop` - Stop all development services
+- `make clean` - Clean build artifacts
+
+### Help
+- `make help` - Show all available commands
 
 ## Configuration Files
 
@@ -75,12 +82,15 @@ This project uses Caddy as a reverse proxy and web server for both development a
 ### Port Conflicts
 If you get port binding errors:
 ```bash
-# Check what's using port 80/443
+# Check what's using ports
 sudo lsof -i :80
 sudo lsof -i :443
+sudo lsof -i :5173
+sudo lsof -i :8000
+sudo lsof -i :19000
 
-# Stop Caddy if running
-caddy stop
+# Stop all development services
+make stop
 ```
 
 ### Hosts File Issues
@@ -90,7 +100,7 @@ If domains don't resolve:
 cat /etc/hosts | grep openhims
 
 # Re-run hosts setup
-./scripts/setup-hosts.sh
+make setup-hosts
 ```
 
 ### Certificate Issues
