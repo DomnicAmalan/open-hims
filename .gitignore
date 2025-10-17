@@ -107,3 +107,28 @@ docs/build/
 # Test artifacts
 test-results/
 coverage/
+
+# Turbo cache
+.turbo/
+
+# Package manager lockfiles (keep pnpm-lock.yaml in root only)
+**/pnpm-lock.yaml
+!pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Build outputs for all packages
+packages/*/dist/
+packages/*/build/
+apps/*/dist/
+apps/*/build/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Storybook build outputs
+storybook-static/
+
+# Temporary files
+tmp/
+temp/

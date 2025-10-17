@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { createWebStore } from '@open-hims/store/web';
 import { HimsProvider } from './context/HimsContext';
+import { DashboardScreen, TestButton } from '@open-hims/screens-web';
 // import './App.css';
 
 function App() {
@@ -23,25 +24,12 @@ function App() {
         <HimsProvider initialCountry={currentCountry} initialState={currentState}>
           <Router>
             <div className="min-h-screen bg-gray-50">
-                <>stet</>
-              {/* <Navigation 
-                currentCountry={currentCountry}
-                currentState={currentState}
-                onCountryChange={setCurrentCountry}
-                onStateChange={setCurrentState}
-              />
-              
               <main className="container mx-auto px-4 py-8">
                 <Routes>
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/patients" element={<PatientManagement />} />
-                  <Route path="/hl7-parser" element={<HL7Parser />} />
-                  <Route path="/compliance" element={<ComplianceDashboard />} />
-                  <Route path="/audit-logs" element={<AuditLogs />} />
-                  <Route path="/data-transfer" element={<DataTransfer />} />
+                  <Route path="/dashboard" element={<DashboardScreen />} />
                 </Routes>
-              </main> */}
+              </main>
             </div>
           </Router>
         </HimsProvider>
