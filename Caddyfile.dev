@@ -1,0 +1,121 @@
+# Caddy Configuration for Open HIMS
+# Development Configuration
+
+# Development Web App
+dev.openhims.health {
+    # Use self-signed certificate for local development
+    tls internal
+    
+    # Proxy to Vite dev server
+    reverse_proxy localhost:5173 {
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        
+        # WebSocket support for Vite HMR
+        header_up Connection {>Connection}
+        header_up Upgrade {>Upgrade}
+    }
+    
+    # API proxy to development backend
+    reverse_proxy /api/* {
+        to localhost:8000
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # CORS headers for development
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "*"
+    header Access-Control-Allow-Headers "*"
+    
+    # Development logging
+    log {
+        output file /var/log/caddy/dev.openhims.health.log {
+            roll_size 5mb
+            roll_keep 5
+        }
+        format console
+    }
+}
+
+# Development API (separate domain)
+api-dev.openhims.health {
+    # Use self-signed certificate for local development
+    tls internal
+    
+    # Rust backend API
+    reverse_proxy localhost:8000 {
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # CORS headers for development
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "*"
+    header Access-Control-Allow-Headers "*"
+    
+    log {
+        output file /var/log/caddy/api-dev.openhims.health.log {
+            roll_size 5mb
+            roll_keep 5
+        }
+        format console
+    }
+}
+
+# Local development with localhost (HTTPS)
+https://localhost:3000 {
+    # Proxy to Vite dev server
+    reverse_proxy localhost:5173 {
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        
+        # WebSocket support for Vite HMR
+        header_up Connection {>Connection}
+        header_up Upgrade {>Upgrade}
+    }
+    
+    # API proxy to development backend
+    reverse_proxy /api/* {
+        to localhost:8000
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # Use self-signed certificate for local development
+    tls internal
+    
+    # Development CORS
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "*" 
+    header Access-Control-Allow-Headers "*"
+}
+
+# Local API development
+https://localhost:8443 {
+    # Direct proxy to Rust backend
+    reverse_proxy localhost:8000 {
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # Self-signed cert for local development
+    tls internal
+    
+    # CORS for local development
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "*"
+    header Access-Control-Allow-Headers "*"
+}

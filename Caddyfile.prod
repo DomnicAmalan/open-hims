@@ -1,0 +1,85 @@
+# Caddy Configuration for Open HIMS
+# Production Configuration
+
+# Production Web App
+prod.openhims.health {
+    # Serve the built React web app
+    root * /var/www/openhims/web
+    file_server
+    
+    # SPA routing - fallback to index.html for client-side routing
+    try_files {path} /index.html
+    
+    # Enable gzip compression
+    encode gzip
+    
+    # Security headers
+    header {
+        # HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Prevent clickjacking
+        X-Frame-Options "DENY"
+        # XSS protection
+        X-XSS-Protection "1; mode=block"
+        # Content type sniffing protection
+        X-Content-Type-Options "nosniff"
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Content Security Policy
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.openhims.health"
+    }
+    
+    # API proxy to backend
+    reverse_proxy /api/* {
+        to localhost:8000
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # Health check endpoint
+    respond /health 200 {
+        body "OK"
+    }
+    
+    # Logging
+    log {
+        output file /var/log/caddy/prod.openhims.health.log {
+            roll_size 10mb
+            roll_keep 10
+        }
+        format json
+    }
+}
+
+# Production API (if separate domain needed)
+api.openhims.health {
+    # Rust backend API
+    reverse_proxy localhost:8000 {
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # CORS headers for web app
+    header Access-Control-Allow-Origin "https://prod.openhims.health"
+    header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    header Access-Control-Allow-Headers "Content-Type, Authorization"
+    
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Frame-Options "DENY"
+        X-Content-Type-Options "nosniff"
+    }
+    
+    log {
+        output file /var/log/caddy/api.openhims.health.log {
+            roll_size 10mb
+            roll_keep 10
+        }
+        format json
+    }
+}
