@@ -18,7 +18,7 @@ dev.openhims.health {
 
 	# API proxy to development backend
 	reverse_proxy /api/* {
-		to localhost:8000
+		to localhost:8080
 		header_up Host {upstream_hostport}
 		header_up X-Real-IP {remote_host}
 	}
@@ -44,7 +44,7 @@ api-dev.openhims.health {
 	tls internal
 
 	# Rust backend API
-	reverse_proxy localhost:8000 {
+	reverse_proxy localhost:8080 {
 		header_up Host {upstream_hostport}
 		header_up X-Real-IP {remote_host}
 	}

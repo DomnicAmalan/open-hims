@@ -4,7 +4,7 @@
 # Get current directory
 PROJECT_DIR := $(shell pwd)
 
-.PHONY: help setup dev dev-all start-rust start-web start-desktop start-mobile start-caddy stop clean check-hosts setup-hosts
+.PHONY: help setup dev dev-all start-rust start-web start-desktop start-mobile start-caddy dev-web dev-desktop dev-mobile dev-web-tabs dev-desktop-tabs dev-mobile-tabs stop clean check-hosts setup-hosts
 
 # Default target
 help:
@@ -18,6 +18,16 @@ help:
 	@echo "  make dev        - Start ALL services in separate tabs (recommended)"
 	@echo "  make dev-all    - Same as 'make dev'"
 	@echo "  make dev-parallel - Start ALL services in same terminal (parallel)"
+	@echo ""
+	@echo "Combined Services (Backend + Frontend):"
+	@echo "  make dev-web-tabs     - Start Rust backend + Web app + Caddy in separate tabs"
+	@echo "  make dev-desktop-tabs - Start Rust backend + Desktop app + Caddy in separate tabs"
+	@echo "  make dev-mobile-tabs  - Start Rust backend + Mobile app + Caddy in separate tabs"
+	@echo ""
+	@echo "Combined Services (Legacy - same terminal):"
+	@echo "  make dev-web     - Start Rust backend + Web app"
+	@echo "  make dev-desktop - Start Rust backend + Desktop app"
+	@echo "  make dev-mobile  - Start Rust backend + Mobile app"
 	@echo ""
 	@echo "Individual Services:"
 	@echo "  make start-rust    - Start Rust backend server"
@@ -102,6 +112,59 @@ start-caddy:
 	@echo "🌐 Starting Caddy reverse proxy..."
 	@echo "Note: Caddy requires sudo for certificate management and port binding"
 	sudo caddy run --config Caddyfile.dev
+
+# Combined service targets in separate tabs
+dev-desktop-tabs:
+	@echo "🖥️ Starting Desktop app with backend in separate tabs..."
+	@echo "This will open tabs for:"
+	@echo "  - Tab 1: Rust API server (http://localhost:8080)"
+	@echo "  - Tab 2: Desktop app (Tauri)"
+	@echo "  - Tab 3: Caddy reverse proxy"
+	@echo ""
+	./scripts/start-desktop-tabs.sh
+
+dev-web-tabs:
+	@echo "🌐 Starting Web app with backend in separate tabs..."
+	@echo "This will open tabs for:"
+	@echo "  - Tab 1: Rust API server (http://localhost:8080)"
+	@echo "  - Tab 2: Web app (Vite dev server)"
+	@echo "  - Tab 3: Caddy reverse proxy"
+	@echo ""
+	./scripts/start-web-tabs.sh
+
+dev-mobile-tabs:
+	@echo "📱 Starting Mobile app with backend in separate tabs..."
+	@echo "This will open tabs for:"
+	@echo "  - Tab 1: Rust API server (http://localhost:8080)"
+	@echo "  - Tab 2: Mobile app (Expo)"
+	@echo "  - Tab 3: Caddy reverse proxy"
+	@echo ""
+	./scripts/start-mobile-tabs.sh
+
+# Combined service targets (parallel in same terminal - legacy)
+dev-desktop:
+	@echo "🖥️ Starting Desktop app with backend..."
+	@echo "This will start:"
+	@echo "  - Rust API server (http://localhost:8080)"
+	@echo "  - Desktop app (Tauri)"
+	@echo ""
+	$(MAKE) -j2 start-rust start-desktop
+
+dev-web:
+	@echo "🌐 Starting Web app with backend..."
+	@echo "This will start:"
+	@echo "  - Rust API server (http://localhost:8080)"
+	@echo "  - Web app (Vite dev server)"
+	@echo ""
+	$(MAKE) -j2 start-rust start-web
+
+dev-mobile:
+	@echo "📱 Starting Mobile app with backend..."
+	@echo "This will start:"
+	@echo "  - Rust API server (http://localhost:8080)"
+	@echo "  - Mobile app (Expo)"
+	@echo ""
+	$(MAKE) -j2 start-rust start-mobile
 
 # Stop all services
 stop:
