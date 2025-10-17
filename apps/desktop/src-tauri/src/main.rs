@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    desktop_tauri_lib::run()
+    open_hims_desktop_lib::run()
 }

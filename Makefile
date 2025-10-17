@@ -85,7 +85,8 @@ start-rust:
 	@echo "🦀 Building Rust SDK..."
 	cargo build
 	@echo "✅ Rust SDK built successfully!"
-	@echo "� SDK ready as library for frontend apps"
+	@echo "📚 SDK ready as library for frontend apps"
+	@echo "🔧 To add an API server, consider adding a binary target to Cargo.toml"
 
 start-web:
 	@echo "⚛️ Starting React web app..."
