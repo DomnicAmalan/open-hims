@@ -28,12 +28,12 @@
     "type-check:web": "cd apps/web && pnpm type-check",
     "type-check:mobile": "cd apps/mobile && pnpm type-check",
     "type-check:desktop": "cd apps/desktop && pnpm build",
-    "nuke": "rm -rf node_modules apps/*/node_modules packages/*/node_modules pnpm-lock.yaml apps/*/pnpm-lock.yaml packages/*/pnpm-lock.yaml && pnpm install"
+    "nuke": "rm -rf node_modules apps/*/node_modules packages/*/node_modules pnpm-lock.yaml apps/*/pnpm-lock.yaml packages/*/pnpm-lock.yaml && pnpm install --frozen-lockfile=false"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.46.1",
-    "eslint": "^9.37.0",
+    "eslint": "^9.38.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
     "typescript": "^5.9.3"
@@ -49,11 +49,21 @@
   },
   "pnpm": {
     "overrides": {
-      "react": "19.2.0",
-      "@types/react": "~19.2.0",
-      "react-dom": "19.2.0",
-      "@types/react-dom": "~19.2.0",
-      "react-native": "0.81.4"
+      "react": "19.1.0",
+      "@types/react": "~19.1.10",
+      "react-dom": "19.1.0",
+      "@types/react-dom": "~19.1.10",
+      "react-native": "0.81.4",
+      "vite": "^5.4.0",
+      "eslint": "^9.38.0",
+      "eslint-plugin-react-hooks": "^7.0.0",
+      "storybook": "^8.6.14",
+      "@storybook/addon-essentials": "^8.6.14",
+      "@storybook/addon-interactions": "^8.6.14",
+      "@storybook/addon-docs": "^8.6.14",
+      "@storybook/blocks": "^8.6.14",
+      "@storybook/react": "^8.6.14",
+      "@storybook/react-vite": "^8.6.14"
     }
   }
 }
