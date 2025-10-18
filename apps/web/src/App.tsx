@@ -7,6 +7,8 @@ import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { createWebStore } from '@open-hims/store/web';
 import { DashboardScreen, PatientsScreen } from '@open-hims/screens-web';
+
+// Mantine v8 CSS imports
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 
@@ -30,7 +32,10 @@ function App() {
       <ModalsProvider>
         <Provider store={store}>
           <PersistGate loading={<div>Loading...</div>} persistor={persistor}>
-            <Router>
+            <Router future={{ 
+              v7_startTransition: true,
+              v7_relativeSplatPath: true 
+            }}>
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<DashboardScreen />} />

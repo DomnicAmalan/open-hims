@@ -1,14 +1,38 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, Grid, Group, Text, Button, Container } from '@mantine/core';
 import { useSelector } from 'react-redux';
+import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '@open-hims/store';
 
+// Define proper types for the selector
+interface DashboardData {
+  patients: any[];
+  loading: boolean;
+  error: string | null;
+}
+
+// Memoized selector to prevent unnecessary re-renders
+const selectDashboardData = createSelector(
+  (state: RootState) => state.patients.patients,
+  (state: RootState) => state.patients.loading.fetchPatients,
+  (state: RootState) => state.patients.error,
+  (patients: any[], loading: boolean, error: string | null): DashboardData => ({
+    patients,
+    loading,
+    error,
+  })
+);
+
 export function DashboardScreen() {
-  const { patients, loading, error } = useSelector((state: RootState) => ({
-    patients: state.patients.patients,
-    loading: state.patients.loading.fetchPatients,
-    error: state.patients.error,
-  }));
+  const { patients, loading, error } = useSelector<RootState, DashboardData>(selectDashboardData);
+
+  // Memoize computed values
+  const stats = useMemo(() => ({
+    totalPatients: patients.length,
+    totalRecords: patients.length,
+    status: error ? 'Error' : 'Ready',
+    statusColor: error ? 'red' : 'green'
+  }), [patients.length, error]);
 
   return (
     <Container size="lg" py="md">
@@ -23,7 +47,7 @@ export function DashboardScreen() {
               <Text fw={500}>Total Patients</Text>
             </Group>
             <Text size="xl" fw="bold" c="blue">
-              {loading ? '...' : patients.length}
+              {loading ? '...' : stats.totalPatients}
             </Text>
           </Card>
         </Grid.Col>
@@ -34,7 +58,7 @@ export function DashboardScreen() {
               <Text fw={500}>Total Records</Text>
             </Group>
             <Text size="xl" fw="bold" c="green">
-              {loading ? '...' : patients.length}
+              {loading ? '...' : stats.totalRecords}
             </Text>
           </Card>
         </Grid.Col>
@@ -44,8 +68,8 @@ export function DashboardScreen() {
             <Group justify="space-between" mb="xs">
               <Text fw={500}>Status</Text>
             </Group>
-            <Text size="xl" fw="bold" c={error ? "red" : "green"}>
-              {error ? 'Error' : 'Ready'}
+            <Text size="xl" fw="bold" c={stats.statusColor}>
+              {stats.status}
             </Text>
           </Card>
         </Grid.Col>
