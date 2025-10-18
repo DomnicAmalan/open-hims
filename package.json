@@ -19,6 +19,8 @@
     "install:deps": "pnpm install && cargo build",
     "dev:web": "cd apps/web && pnpm dev",
     "dev:mobile": "cd apps/mobile && pnpm start",
+    "dev:ios": "cd apps/mobile && pnpm ios",
+    "dev:android": "cd apps/mobile && pnpm android",
     "dev:desktop": "cd apps/desktop && pnpm tauri dev",
     "build:web": "cd apps/web && pnpm build",
     "build:mobile": "cd apps/mobile && pnpm build",
