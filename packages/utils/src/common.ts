@@ -215,7 +215,11 @@ export function isEmpty(obj: any): boolean {
 
 // Encryption utilities
 export function hashString(input: string, algorithm: string = 'SHA256'): string {
-  return CryptoJS[algorithm as keyof typeof CryptoJS](input).toString();
+  const hasher = (CryptoJS as any)[algorithm];
+  if (typeof hasher === 'function') {
+    return hasher(input).toString();
+  }
+  throw new Error(`Unsupported algorithm: ${algorithm}`);
 }
 
 export function encryptString(text: string, key: string): string {
@@ -273,9 +277,9 @@ export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
+  let timeout: ReturnType<typeof setTimeout>;
   
-  return (...args: Parameters<T>) => {
+  return function(this: any, ...args: Parameters<T>) {
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(this, args), wait);
   };
@@ -287,7 +291,7 @@ export function throttle<T extends (...args: any[]) => any>(
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
   
-  return (...args: Parameters<T>) => {
+  return function(this: any, ...args: Parameters<T>) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;
